@@ -30,24 +30,25 @@ for i, row in enumerate(rows, start=2):
         post_text = row["post_text"]
 
         page_id = os.environ["FB_PAGE_ID"]
-
         token = os.environ["FB_PAGE_TOKEN"]
 
         url = f"https://graph.facebook.com/{page_id}/feed"
 
-       r = requests.post(
-    url,
-    data={
-        "message": post_text,
-        "access_token": token
-    }
-)
+        r = requests.post(
+            url,
+            data={
+                "message": post_text,
+                "access_token": token
+            }
+        )
 
-print("Facebook Status:", r.status_code)
-print("Facebook Response:", r.text)
+        print("Facebook Status:", r.status_code)
+        print("Facebook Response:", r.text)
 
-if r.status_code == 200:
-    sheet.update_cell(i, 2, "Posted")
-    print("Posted Successfully")
-else:
-    print("Post Failed")
+        if r.status_code == 200:
+            sheet.update_cell(i, 2, "Posted")
+            print("Posted Successfully")
+        else:
+            print("Post Failed")
+
+        break
