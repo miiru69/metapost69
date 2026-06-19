@@ -25,7 +25,7 @@ rows = sheet.get_all_records()
 
 for i, row in enumerate(rows, start=2):
 
-    if row["status"] == "Pending":
+    if row["status"].lower() == "pending":
 
         post_text = row["post_text"]
 
