@@ -4,7 +4,7 @@ import requests
 import gspread
 from google.oauth2.service_account import Credentials
 
-# Google Sheets Authentication
+# Google Credentials
 creds_json = json.loads(os.environ["GOOGLE_CREDENTIALS"])
 
 scopes = [
@@ -22,30 +22,11 @@ sheet = client.open_by_key(
     os.environ["SHEET_ID"]
 ).sheet1
 
-# Facebook Pages
-pages = [
-    {
-        "id": os.environ["PAGE1_ID"],
-        "token": os.environ["PAGE1_TOKEN"]
-    },
-    {
-        "id": os.environ["PAGE2_ID"],
-        "token": os.environ["PAGE2_TOKEN"]
-    },
-    {
-        "id": os.environ["PAGE3_ID"],
-        "token": os.environ["PAGE3_TOKEN"]
-    },
-    {
-        "id": os.environ["PAGE4_ID"],
-        "token": os.environ["PAGE4_TOKEN"]
-    },
-    {
-        "id": os.environ["PAGE5_ID"],
-        "token": os.environ["PAGE5_TOKEN"]
-    }
-]
+# Load Pages
+with open("pages.json", "r", encoding="utf-8") as f:
+    pages = json.load(f)
 
+# Read Google Sheet
 rows = sheet.get_all_records()
 
 for i, row in enumerate(rows, start=2):
@@ -60,17 +41,20 @@ for i, row in enumerate(rows, start=2):
 
         for page in pages:
 
-            url = f"https://graph.facebook.com/v23.0/{page['id']}/feed"
+            page_id = page["id"]
+            token = os.environ[page["token_env"]]
+
+            url = f"https://graph.facebook.com/v23.0/{page_id}/feed"
 
             response = requests.post(
                 url,
                 data={
                     "message": post_text,
-                    "access_token": page["token"]
+                    "access_token": token
                 }
             )
 
-            print(f"Page ID: {page['id']}")
+            print(f"\nPosting To Page: {page_id}")
             print("Facebook Status:", response.status_code)
             print("Facebook Response:", response.text)
 
@@ -79,10 +63,10 @@ for i, row in enumerate(rows, start=2):
 
         if all_success:
             sheet.update_cell(i, 2, "Posted")
-            print("Posted Successfully To All 5 Pages")
+            print("\nPosted Successfully To All Pages")
         else:
-            print("One or More Pages Failed")
+            print("\nOne Or More Pages Failed")
 
         break
 
-print("Done")
+print("\nDone")
