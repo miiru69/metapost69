@@ -1,3 +1,4 @@
+```yaml
 name: Auto Facebook Post
 
 on:
@@ -18,9 +19,24 @@ jobs:
 
       - run: pip install -r requirements.txt
 
-      - run: python main.py
+      - name: Run Bot
+        run: python main.py
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
           SHEET_ID: ${{ secrets.SHEET_ID }}
-          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
-          FB_PAGE_TOKEN: ${{ secrets.FB_PAGE_TOKEN }}
+
+          PAGE1_ID: ${{ secrets.PAGE1_ID }}
+          PAGE1_TOKEN: ${{ secrets.PAGE1_TOKEN }}
+
+          PAGE2_ID: ${{ secrets.PAGE2_ID }}
+          PAGE2_TOKEN: ${{ secrets.PAGE2_TOKEN }}
+
+          PAGE3_ID: ${{ secrets.PAGE3_ID }}
+          PAGE3_TOKEN: ${{ secrets.PAGE3_TOKEN }}
+
+          PAGE4_ID: ${{ secrets.PAGE4_ID }}
+          PAGE4_TOKEN: ${{ secrets.PAGE4_TOKEN }}
+
+          PAGE5_ID: ${{ secrets.PAGE5_ID }}
+          PAGE5_TOKEN: ${{ secrets.PAGE5_TOKEN }}
+```
