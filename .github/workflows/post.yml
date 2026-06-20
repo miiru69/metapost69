@@ -1,0 +1,46 @@
+```yaml
+name: Auto Facebook Post
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Requirements
+        run: pip install -r requirements.txt
+
+      - name: Run Bot
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+          SHEET_ID: ${{ secrets.SHEET_ID }}
+
+          PAGE1_ID: ${{ secrets.PAGE1_ID }}
+          PAGE1_TOKEN: ${{ secrets.PAGE1_TOKEN }}
+
+          PAGE2_ID: ${{ secrets.PAGE2_ID }}
+          PAGE2_TOKEN: ${{ secrets.PAGE2_TOKEN }}
+
+          PAGE3_ID: ${{ secrets.PAGE3_ID }}
+          PAGE3_TOKEN: ${{ secrets.PAGE3_TOKEN }}
+
+          PAGE4_ID: ${{ secrets.PAGE4_ID }}
+          PAGE4_TOKEN: ${{ secrets.PAGE4_TOKEN }}
+
+          PAGE5_ID: ${{ secrets.PAGE5_ID }}
+          PAGE5_TOKEN: ${{ secrets.PAGE5_TOKEN }}
+
+        run: python main.py
+```
