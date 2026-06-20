@@ -1,4 +1,4 @@
-```python
+python
 import os
 import json
 import requests
@@ -87,4 +87,3 @@ for i, row in enumerate(rows, start=2):
     break
 
 print("Finished")
-```
