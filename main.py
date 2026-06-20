@@ -1,19 +1,18 @@
+```python
 import os
 import json
 import requests
 import gspread
 from google.oauth2.service_account import Credentials
 
-# Google Credentials
-creds_json = json.loads(os.environ["GOOGLE_CREDENTIALS"])
+print("Bot Started")
 
-scopes = [
-    "https://www.googleapis.com/auth/spreadsheets"
-]
+# Google Auth
+creds_json = json.loads(os.environ["GOOGLE_CREDENTIALS"])
 
 creds = Credentials.from_service_account_info(
     creds_json,
-    scopes=scopes
+    scopes=["https://www.googleapis.com/auth/spreadsheets"]
 )
 
 client = gspread.authorize(creds)
@@ -22,51 +21,70 @@ sheet = client.open_by_key(
     os.environ["SHEET_ID"]
 ).sheet1
 
-# Load Pages
-with open("pages.json", "r", encoding="utf-8") as f:
-    pages = json.load(f)
+print("Google Sheet Connected")
 
-# Read Google Sheet
+# Pages
+pages = []
+
+for n in range(1, 6):
+    pages.append({
+        "id": os.environ[f"PAGE{n}_ID"],
+        "token": os.environ[f"PAGE{n}_TOKEN"]
+    })
+
 rows = sheet.get_all_records()
+
+print("Rows Found:", len(rows))
 
 for i, row in enumerate(rows, start=2):
 
-    status = str(row["status"]).strip().lower()
+    status = str(row.get("status", "")).strip().lower()
 
-    if status == "pending":
+    if status != "pending":
+        continue
 
-        post_text = row["post_text"]
+    post_text = row.get("post_text", "")
 
-        all_success = True
+    if not post_text:
+        print("Post text empty")
+        continue
 
-        for page in pages:
+    print("Posting:", post_text[:50])
 
-            page_id = page["id"]
-            token = os.environ[page["token_env"]]
+    success_count = 0
 
-            url = f"https://graph.facebook.com/v23.0/{page_id}/feed"
+    for page in pages:
+
+        try:
 
             response = requests.post(
-                url,
+                f"https://graph.facebook.com/v23.0/{page['id']}/feed",
                 data={
                     "message": post_text,
-                    "access_token": token
+                    "access_token": page["token"]
                 }
             )
 
-            print(f"\nPosting To Page: {page_id}")
-            print("Facebook Status:", response.status_code)
-            print("Facebook Response:", response.text)
+            print(
+                f"Page {page['id']} | "
+                f"Status {response.status_code}"
+            )
 
-            if response.status_code != 200:
-                all_success = False
+            print(response.text)
 
-        if all_success:
-            sheet.update_cell(i, 2, "Posted")
-            print("\nPosted Successfully To All Pages")
-        else:
-            print("\nOne Or More Pages Failed")
+            if response.status_code == 200:
+                success_count += 1
 
-        break
+        except Exception as e:
+            print("Error:", str(e))
 
-print("\nDone")
+    print(f"Success: {success_count}/5")
+
+    if success_count == 5:
+        sheet.update_cell(i, 2, "Posted")
+        print("Marked As Posted")
+
+    break
+
+print("Finished")
+```
