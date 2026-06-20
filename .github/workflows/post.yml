@@ -2,9 +2,8 @@ name: Auto Facebook Post
 
 on:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: '*/30 * * * *'
   workflow_dispatch:
-
 jobs:
   post:
     runs-on: ubuntu-latest
